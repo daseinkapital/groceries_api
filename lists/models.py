@@ -4,3 +4,6 @@ from django.db import models
 class Groceries(models.Model):
     name = models.CharField(max_length=250)
     quantity = models.IntegerField()
+
+    class Meta:
+        ordering = ['name']

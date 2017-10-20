@@ -19,13 +19,15 @@ class CurrentGroceriesViewSet(APIView):
     
     def get(self, request, format=None):
         groceries = Groceries.objects.all()
-        serializers = GrocerySerializer(groceries, many=True)
+        serializer = GroceriesSerializer(groceries, many=True)
         return Response(serializer.data)
 
     def post(self, request, format=None):
         add_item = request.POST.get('name')
         quantity = request.POST.get('quantity')
         
+        #drf should have a valid - check documentation
+
         if not isinstance( quantity, int ):
             raise ValidationError('Invalid integer','quantity',status_code=status.HTTP_400_BAD_REQUEST)
 

@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from django.http import JsonResponse, Http404
+from django.http import JsonResponse, Http404, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 import json
 
@@ -23,16 +23,18 @@ class CurrentGroceriesViewSet(APIView):
         return Response(serializer.data)
 
     def post(self, request, format=None):
-        add_item = request.POST.get('name')
-        quantity = request.POST.get('quantity')
-        
+
+        add_item = request.data['add_item']
+        quantity = request.data['quantity']
+
+        if add_item and quantity:
+            Groceries.objects.create(name=add_item, quantity=quantity)
+            return HttpResponse(status=201)
         #drf should have a valid - check documentation
 
         if not isinstance( quantity, int ):
             raise ValidationError('Invalid integer','quantity',status_code=status.HTTP_400_BAD_REQUEST)
 
-        if add_item and (quantity > 0):
-            Groceries.objects.create(name=add_item, quantity=quantity)
         elif (quantity <= 0):
             raise ValidationError('Must be positive', 'quantity', status_code=status.HTTP_400_BAD_REQUEST)
         elif not isinstance( add_item, str ):

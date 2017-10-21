@@ -15,6 +15,7 @@ class App extends Component {
                 <h1>
                 Welcome to your grocery list.
                 </h1>
+                <List />
                 <SubmitButton />
             </div>
         );
@@ -25,7 +26,8 @@ class List extends Component {
     constructor() {
         super();
         this.state = {
-            groceries: []
+            groceries: [],
+            done: []
         };
     }
 
@@ -33,7 +35,7 @@ class List extends Component {
         this.grab_list();
     }
 
-    componentDidUpdate() {
+    componentWillUpdate() {
         this.grab_list();
     }
   
@@ -51,10 +53,13 @@ class List extends Component {
 
     render() {
         return (
-            <ul>
-            {this.state.groceries.map(grocery =>
-            <li>{grocery.name} - x{grocery.quantity}</li>)}
-            </ul>
+            <div>
+                <ul>
+                {this.state.groceries.map(grocery =>
+                <span><input type="checkbox" name={grocery.name} value={grocery.id}></input>{grocery.name} - x{grocery.quantity}<br></br></span>)}
+                </ul>
+                <button type="submit">Mark as done</button>
+            </div>
         )
     }
 }
@@ -77,7 +82,7 @@ class SubmitButton extends Component {
     }
     
     handleClick = (e) => {
-        var dataBody = "add_item="+ this.state.add_item + "&quantity="+ this.state.quantity;
+        var dataBody = "name="+ this.state.add_item + "&quantity="+ this.state.quantity;
         fetch('http://localhost:8000/lists/list/', {
             method: "POST",
             headers: {
@@ -85,7 +90,7 @@ class SubmitButton extends Component {
             },
             body: dataBody
         })
-        this.forceUpdate();
+        List.grab_list();
         document.getElementById("add_item").value = "";
         document.getElementById("quantity").value = "";
     }
@@ -93,7 +98,6 @@ class SubmitButton extends Component {
     render() {
         return (
             <div>
-                <List />
                 <span>
                 <p>Add item:</p>
                 <input type="text" id="add_item" onChange={this.addItemChange}></input>

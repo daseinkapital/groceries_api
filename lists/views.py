@@ -14,6 +14,10 @@ from rest_framework.exceptions import APIException
 from django.utils.encoding import force_text
 from rest_framework import status
 
+from django.utils.six import BytesIO
+from rest_framework.parsers import JSONParser
+
+
 class CurrentGroceriesViewSet(APIView):
     queryset = Groceries.objects.all()
     
@@ -23,13 +27,16 @@ class CurrentGroceriesViewSet(APIView):
         return Response(serializer.data)
 
     def post(self, request, format=None):
-
-        add_item = request.data['add_item']
-        quantity = request.data['quantity']
-
-        if add_item and quantity:
-            Groceries.objects.create(name=add_item, quantity=quantity)
-            return HttpResponse(status=201)
+        serializer = GroceriesSerializer(data=request.data)
+        if serializer.is_valid():
+            add_item = request.data['name']
+            quantity = request.data['quantity']
+            if add_item and quantity:
+                Groceries.objects.create(name=add_item, quantity=quantity)
+                return HttpResponse(status=201)
+        else:
+            print(serializer.errors)
+            return HttpResponse(status=400)
         #drf should have a valid - check documentation
 
         if not isinstance( quantity, int ):
